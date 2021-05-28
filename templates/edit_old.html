@@ -1,0 +1,507 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+
+    <title></title>
+    <meta name="keywords" content="">
+    <meta name="description" content="">
+
+    <link rel="shortcut icon" href="favicon.ico"> <link href="/static/css/bootstrap.min.css?v=3.3.6" rel="stylesheet">
+    <link href="/static/css/font-awesome.css?v=4.4.0" rel="stylesheet">
+    <link href="/static/js/plugins/fancybox/jquery.fancybox.css" rel="stylesheet">
+    <link href="/static/css/animate.css" rel="stylesheet">
+    <link href="/static/css/bootstrap-switch.css" rel="stylesheet">
+    <link href="/static/css/plugins/summernote/summernote.css" rel="stylesheet">
+    <link href="/static/css/plugins/summernote/summernote-bs3.css" rel="stylesheet">
+    <link href="/static/css/style.css?v=4.1.0" rel="stylesheet">
+    <link href="/static/css/plugins/markdown/bootstrap-markdown.min.css" rel="stylesheet">
+    <link href="/static/css/plugins/toastr/toastr.min.css" rel="stylesheet">
+    <style type="text/css">
+        @media (min-width: 768px) {
+            .dl-horizontal dt {
+                width: 105px;
+            }
+            .dl-horizontal dd {
+                margin-left: 195px;
+            }
+        }
+        @media (min-width: 1200px) {
+            .dl-horizontal dt {
+                width: 90px;
+            }
+            .dl-horizontal dd {
+                margin-left: 180px;
+            }
+        }
+    </style>
+</head>
+
+<body class="gray-bg">
+    <div class="wrapper wrapper-content animated fadeInRight" style="-webkit-animation-fill-mode: backwards; animation-fill-mode: backwards;">
+        {% if content == 'survey' %}
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="ibox float-e-margins">
+                        <div class="ibox-title">
+                            <h5>问卷编辑器</h5>
+                        </div>
+                        <div class="ibox-content">
+                            <form method="post" class="form-horizontal" role="form" action="/edit">
+                                {% csrf_token %}
+                                <input type="hidden" name="page" value="survey">
+                                <input type="hidden" name="survey" value="{{ survey|default:"" }}">
+                                <div class="form-group">
+                                    <label class="col-sm-2 control-label">标题</label>
+
+                                    <div class="col-sm-10">
+                                        <input type="text" class="form-control" name="title" value="{{ title }}" required="">
+                                    </div>
+                                </div>
+                                <div class="hr-line-dashed"></div>
+                                <div class="form-group">
+                                    <label class="col-sm-2 control-label">描述</label>
+                                    <div class="col-sm-10">
+                                        <textarea class="form-control" rows="5" name="description" value="{{ description }}" required="" id="description"></textarea>
+                                        <span class="help-block m-b-none">问卷的描述信息，可填写该问卷的研究内容、方向及目标，支持多行显示。</span>
+                                    </div>
+                                </div>
+                                <div class="hr-line-dashed"></div>
+                                <div class="form-group">
+                                    <label class="col-sm-2 control-label">是否激活</label>
+                                    <div class="col-sm-10">
+                                        <input type="checkbox" {% if activate %}checked{% endif %} class="onoffswitch-checkbox" name="activate">
+                                        <!--div class="switch">
+                                            <div class="onoffswitch" style="margin-top: 5px;">
+                                                <input type="checkbox" {% if activate %}checked{% endif %} class="onoffswitch-checkbox" name="activate">
+                                                <label class="onoffswitch-label" for="activate">
+                                                    <span class="onoffswitch-inner"></span>
+                                                    <span class="onoffswitch-switch"></span>
+                                                </label>
+                                            </div>
+                                        </div-->
+                                    </div>
+                                </div>
+                                <div class="hr-line-dashed"></div>
+                                <div class="form-group">
+                                    <label class="col-sm-2 control-label">是否公开</label>
+                                    <div class="col-sm-10">
+                                        <input type="checkbox" {% if public %}checked{% endif %} class="onoffswitch-checkbox" name="public">
+                                        <!--div class="switch">
+                                            <div class="onoffswitch" style="margin-top: 5px;">
+                                                <input type="checkbox" {% if public %}checked{% endif %} class="onoffswitch-checkbox" name="public">
+                                                <label class="onoffswitch-label" for="public">
+                                                    <span class="onoffswitch-inner"></span>
+                                                    <span class="onoffswitch-switch"></span>
+                                                </label>
+                                            </div>
+                                        </div-->
+                                    </div>
+                                </div>
+                                <div class="hr-line-dashed"></div>
+                                <div class="form-group">
+                                    <label class="col-sm-2 control-label">允许修改</label>
+                                    <div class="col-sm-10">
+                                        <input type="checkbox" {% if modifiable %}checked{% endif %} class="onoffswitch-checkbox" name="modifiable">
+                                        <!--div class="switch">
+                                            <div class="onoffswitch" style="margin-top: 5px;">
+                                                <input type="checkbox" {% if modifiable %}checked{% endif %} class="onoffswitch-checkbox" name="modifiable">
+                                                <label class="onoffswitch-label" for="modifiable">
+                                                    <span class="onoffswitch-inner"></span>
+                                                    <span class="onoffswitch-switch"></span>
+                                                </label>
+                                            </div>
+                                        </div-->
+                                    </div>
+                                </div>
+                                <div class="hr-line-dashed"></div>
+                                <div class="form-group">
+                                    <div class="col-sm-4 col-sm-offset-2">
+                                        <button class="btn btn-primary" type="submit">保存内容</button>
+                                        <a class="btn btn-primary" href="/edit?survey={{ survey }}&content=question">编辑题目</a>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% elif content == 'question' %}
+            <form method="post" class="form-horizontal" role="form" action="/edit" onsubmit='return check_submit();'>
+                {% csrf_token %}
+                <input type="hidden" name="page" value="questions">
+                <input type="hidden" name="survey" value="{{ survey|default:"" }}">
+                <div class="row">
+                        {% for question in questions %}
+                            <div class="col-md-6 col-lg-4" id="question_{{ question.order}}">
+                                <div class="panel panel-info">
+                                    <div class="panel-heading">
+                                        <i class="fa">问题 {{ question.order }}:</i> 
+                                    </div>
+                                    <div class="panel-body">
+                                            <div class="form-group">
+                                                <label class="col-sm-2 control-label">题目类型</label>
+                                                <div class="col-sm-10">
+                                                    <select class="form-control" id="topic_type_{{ question.order }}" name="topic_type_{{ question.order }}">
+                                                        <option value="text" {% if question.topic_type == 'text' %} selected="selected" {% endif %}>文本</option>
+                                                        <option value="richtext" {% if question.topic_type == 'richtext' %} selected="selected" {% endif %}>富文本</option>
+                                                        <option value="markdown" {% if question.topic_type == 'markdown' %} selected="selected" {% endif %}>Markdown</option>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                            <div class="form-group" id="topic_text_{{ question.order }}" {% if question.topic_type != 'text' %} style="display:none"{% endif %}>
+                                                <label class="col-sm-2 control-label">标题</label>
+
+                                                <div class="col-sm-10">
+                                                    <input type="text" class="form-control" name="topic_{{ question.order }}" value="{{ question.topic }}">
+                                                </div>
+                                            </div>
+                                            <div class="form-group" id="topic_richtext_{{ question.order }}" {% if question.topic_type != 'richtext' %} style="display:none"{% endif %}>
+                                                <label class="col-sm-2 control-label">标题</label>
+                                                <div class="col-sm-10">
+                                                    <div id="summernote_{{ question.order }}">
+                                                        
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="form-group" id="topic_markdown_{{ question.order }}" {% if question.topic_type != 'markdown' %} style="display:none"{% endif %}>
+                                                <label class="col-sm-2 control-label">标题</label>
+                                                <div class="col-sm-10">
+                                                    <textarea data-provide="markdown" rows="7"></textarea>
+                                                </div>
+                                            </div>
+                                            <div class="form-group">
+                                                <label class="col-sm-2 control-label">答案类型</label>
+                                                <div class="col-sm-10">
+                                                    <select class="form-control" id="answer_type_{{ question.order }}" name="answer_type_{{ question.order }}">
+                                                        <option value="select" {% if question.answer_type == 'select' %} selected="selected" {% endif %}>选择题</option>
+                                                        <option value="checkbox" {% if question.answer_type == 'checkbox' %} selected="selected" {% endif %}>多选题</option>
+                                                        <option value="input" {% if question.answer_type == 'input' %} selected="selected" {% endif %}>填空题</option>
+                                                        <option value="textbox" {% if question.answer_type == 'textbox' %} selected="selected" {% endif %}>简答题</option>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                            {% if question.answer_type == 'select' or question.answer_type == 'checkbox' %}
+                                                {% for answer in question.answers %}
+                                                    <div class="form-group answer_{{ question.order }}">
+                                                        <label class="col-sm-2 control-label">答案 {{ forloop.counter }}</label>
+                                                        <div class="col-sm-10">
+                                                            <input type="text" class="form-control" name="ans_{{ question.order }}" value="{{ answer }}" {% if question.answers_length > forloop.counter0 %}required="" {% endif%}>
+                                                        </div>
+                                                    </div>
+                                                {% endfor %}
+                                                <div class="form-group answer_{{ question.order }}">
+                                                    <div class="col-sm-2 control-label">
+                                                    </div>
+                                                    <div class="col-sm-10">
+                                                        <button class="btn btn-default btn-circle" type="button" onclick="check_answers({{ question.order }}, -1);">
+                                                            <i class="fa fa-minus text-danger"></i>
+                                                            <span class="bold"></span>
+                                                        </button>
+                                                        <button class="btn btn-default btn-circle" type="button" onclick="check_answers({{ question.order }}, 1);">
+                                                            <i class="fa fa-plus"></i>
+                                                            <span class="bold"></span>
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            {% else %}
+                                                {% for _ in "_"|ljust:"10" %}
+                                                    <div class="form-group answer_{{ question.order }}" style="display: none">
+                                                        <label class="col-sm-2 control-label">答案 {{ forloop.counter }}</label>
+                                                        <div class="col-sm-10">
+                                                            <input type="text" class="form-control" name="ans_{{ question.order }}" value="">
+                                                        </div>
+                                                    </div>
+                                                {% endfor %}
+                                                <div class="form-group answer_{{ question.order }}" style="display: none">
+                                                    <div class="col-sm-2 control-label">
+                                                    </div>
+                                                    <div class="col-sm-10">
+                                                        <button class="btn btn-default btn-circle" type="button" onclick="check_answers({{ question.order }}, -1);">
+                                                            <i class="fa fa-minus text-danger"></i>
+                                                            <span class="bold"></span>
+                                                        </button>
+                                                        <button class="btn btn-default btn-circle" type="button" onclick="check_answers({{ question.order }}, 1);">
+                                                            <i class="fa fa-plus"></i>
+                                                            <span class="bold"></span>
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                        {% endfor %}
+                        <div class="col-md-4 col-lg-2 col-md-offset-1 col-lg-offset-1" id="question_insert">
+                            <div class="panel panel-info m-lg">
+                                <div class="panel-body" style="text-align:center">
+                                    <button class="btn btn-primary dim btn-large-dim" type="button" onclick="add_question();">
+                                        <i class="fa fa-plus"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div style="position:fixed; bottom:0; width:100%; text-align:center;">
+                    <button class="btn btn-primary btn-block btn-lg" type="submit">提交修改</button>
+                </div>
+            </form>
+            <div class="row p-m">
+            </div>
+        {% endif %}
+    </div>
+
+
+    <!-- 全局js -->
+    <script src="/static/js/jquery.min.js?v=2.1.4"></script>
+    <script src="/static/js/bootstrap.min.js?v=3.3.6"></script>
+
+
+    <script src="/static/js/bootstrap-switch.js"></script>
+
+    <!-- Peity -->
+    <script src="/static/js/plugins/peity/jquery.peity.min.js"></script>
+
+    <!-- 自定义js -->
+    <script src="/static/js/content.js?v=1.0.0"></script>
+
+
+    <!-- Fancy box -->
+    <script src="/static/js/plugins/fancybox/jquery.fancybox.js"></script>
+    
+
+    <!-- Toastr script -->
+    <script src="/static/js/plugins/toastr/toastr.min.js"></script>
+
+    <!-- SUMMERNOTE -->
+    <script src="/static/js/plugins/summernote/summernote.min.js"></script>
+    <script src="/static/js/plugins/summernote/summernote-zh-CN.js"></script>
+
+    <!-- simditor -->
+    <script src="/static/js/plugins/markdown/markdown.js"></script>
+    <script src="/static/js/plugins/markdown/to-markdown.js"></script>
+    <script src="/static/js/plugins/markdown/bootstrap-markdown.js"></script>
+    <script src="/static/js/plugins/markdown/bootstrap-markdown.zh.js"></script>
+
+
+
+    <script>
+        {% if content == 'survey' %}
+            $(document).ready(function () {
+                $('.fancybox').fancybox({
+                    openEffect: 'none',
+                    closeEffect: 'none',
+                });
+                $('#description').text("{{ description }}");
+                $("[name='activate']").bootstrapSwitch({size: 'mini'});
+                $("[name='public']").bootstrapSwitch({size: 'mini'});
+                $("[name='modifiable']").bootstrapSwitch({size: 'mini'});
+            });
+        {% elif content == 'question' %}
+            var questions_count = {{ questions|length }};
+            var answers_length = [{% for q in questions %} {{ q.answers_length }} ,{% endfor %}];
+            function check_topic(q) {
+                var type = $('#topic_type_' + q + ' option:selected').val();
+                if (type == 'text') {
+                    $('#topic_text_' + q).css('display', '');
+                    $('#topic_richtext_' + q).css('display', 'none');
+                    $('#topic_markdown_' + q).css('display', 'none');
+
+                    $('#question_' + q).removeClass('col-md-12').addClass('col-lg-4').addClass('col-md-6');
+                    // $('#summernote_' + q).summernote('destroy');
+                } else if (type == 'richtext') {
+                    $('#topic_text_' + q).css('display', 'none');
+                    $('#topic_richtext_' + q).css('display', '');
+                    $('#topic_markdown_' + q).css('display', 'none');
+
+                    $('#question_' + q).removeClass('col-md-6').removeClass('col-lg-4').addClass('col-md-12');
+                    $('#summernote_' + q).summernote({
+                        lang: 'zh-CN',
+                        height: 160,
+                    });
+
+                    var code = $('#summernote_' + q).code();
+                    if (code.search(/\S+/) == -1) {
+                        var input = $('#topic_text_' + q + ' input').val();
+                        $('#summernote_' + q).code(input);
+                    }
+                } else if (type == 'markdown') {
+                    $('#topic_text_' + q).css('display', 'none');
+                    $('#topic_richtext_' + q).css('display', 'none');
+                    $('#topic_markdown_' + q).css('display', '');
+
+                    $('#question_' + q).removeClass('col-md-6').removeClass('col-lg-4').addClass('col-md-12');
+                    // $('#summernote_' + q).summernote('destroy');
+
+                    var code = $('#topic_markdown_' + q + ' textarea').val();
+                    if (code.search(/\S+/) == -1) {
+                        var input = $('#topic_text_' + q + ' input').val();
+                        $('#topic_markdown_' + q + ' textarea').val(input);
+                    }
+                }
+            }
+            function show(q) {
+                var type = $('#answer_type_' + q + ' option:selected').val();
+                if (type == 'select' || type == 'checkbox') {
+                    $('.answer_' + q).css('display', '');
+                    $('.answer_' + q + ':gt(' + (answers_length[q-1] - 1) + '):lt(' + (10 - answers_length[q-1]) + ')').css('display', 'none');
+                    $('.answer_' + q + ' input').attr('required', '')
+                    $('.answer_' + q + ':gt(' + (answers_length[q-1] - 1) + '):lt(' + (10 - answers_length[q-1]) + ') input').attr('required', null)
+                } else {
+                    $('.answer_' + q).css('display', 'none');
+                    $('.answer_' + q + ' input').attr('required', null);
+                }
+            }
+            for (let q = 1; q <= questions_count; q ++) {
+                $('#topic_type_' + q).change(function () {
+                    check_topic(q);
+                });
+                $('#answer_type_' + q).change(function () {
+                    show(q);        
+                });
+                check_topic(q);
+                show(q);
+            }
+
+            var question_dom = `<div class="col-md-6 col-lg-4" id="question_{order}">
+    <div class="panel panel-info">
+        <div class="panel-heading">
+            <i class="fa">问题 {order}:</i> 
+        </div>
+        <div class="panel-body">
+            <div class="form-group">
+                <label class="col-sm-2 control-label">题目类型</label>
+                <div class="col-sm-10">
+                    <select class="form-control" id="topic_type_{order}" name="topic_type_{order}">
+                        <option value="text" selected="selected">文本</option>
+                        <option value="richtext">富文本</option>
+                        <option value="markdown">Markdown</option>
+                    </select>
+                </div>
+            </div>
+            <div class="form-group" id="topic_text_{order}">
+                <label class="col-sm-2 control-label">标题</label>
+                <div class="col-sm-10">
+                    <input type="text" class="form-control" name="topic_{order}" value="">
+                </div>
+            </div>
+            <div class="form-group" id="topic_richtext_{order}"style="display:none">
+                <label class="col-sm-2 control-label">标题</label>
+                <div class="col-sm-10">
+                    <div id="summernote_{order}">
+                    </div>
+                </div>
+            </div>
+            <div class="form-group" id="topic_markdown_{order}"style="display:none">
+                <label class="col-sm-2 control-label">标题</label>
+                <div class="col-sm-10">
+                    <textarea name="" data-provide="markdown" rows="7"></textarea>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-2 control-label">答案类型</label>
+                <div class="col-sm-10">
+                    <select class="form-control" id="answer_type_{order}" name="answer_type_{order}">
+                        <option value="select">选择题</option>
+                        <option value="checkbox">多选题</option>
+                        <option value="input" selected="selected">填空题</option>
+                        <option value="textbox">简答题</option>
+                    </select>
+                </div>
+            </div>
+            {% for _ in "_"|ljust:"10" %}
+                <div class="form-group answer_{order}" style="display: none">
+                    <label class="col-sm-2 control-label">答案 {{ forloop.counter }}</label>
+                    <div class="col-sm-10">
+                        <input type="text" class="form-control" name="ans_{order}" value="">
+                    </div>
+                </div>
+            {% endfor %}
+            <div class="form-group answer_{order}" style="display: none">
+                <div class="col-sm-2 control-label">
+                </div>
+                <div class="col-sm-10">
+                    <button class="btn btn-default btn-circle" type="button" onclick="check_answers({order}, -1);">
+                        <i class="fa fa-minus text-danger"></i>                                                            <span class="bold"></span>
+                    </button>
+                    <button class="btn btn-default btn-circle" type="button" onclick="check_answers({order}, 1);">
+                        <i class="fa fa-plus"></i>
+                        <span class="bold"></span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>`;
+            function add_question() {
+                questions_count ++;
+                answers_length.push(2);
+                $('#question_insert').before(question_dom.replace(/{order}/g, questions_count));
+                $('#topic_type_' + questions_count).change(function () {
+                    check_topic(questions_count);
+                });
+                $('#answer_type_' + questions_count).change(function () {
+                    show(questions_count);        
+                });
+                $('#topic_markdown_' + questions_count + ' textarea').markdown({
+                    autofocus: true,
+                    language: 'zh',
+                })
+            }
+            if (questions_count < 1) {
+                add_question();
+            }
+            function check_answers(q, opt) {
+                if ( answers_length[q-1] + opt > 10) {
+                    toastr.warning("超出最大答案数量限制！");
+                } else if ( answers_length[q-1] + opt < 2) {
+                    toastr.warning("超出最小答案数量限制！");
+                } else {
+                    answers_length[q-1] += opt;
+                    show(q);
+                } 
+            }
+            function check_submit() {
+                for (var q = 1; q <= questions_count; q++) {
+                    var type = $('#topic_type_' + q + ' option:selected').val();
+                    if (type == 'richtext') { 
+                        var text = $('#summernote_' + q).code();
+                        $('#topic_text_' + q + ' input').val(text);
+                    } else if (type == 'markdown') {
+                        var text = $('#topic_markdown_' + q + ' textarea').val();
+                        text = markdown.toHTML(text);
+                        $('#topic_text_' + q + ' input').val(text);
+                    }
+                }
+                return true;
+            }
+            toastr.options = {
+                "closeButton": true,
+                "debug": false,
+                "progressBar": true,
+                "positionClass": "toast-top-right",
+                "onclick": null,
+                "showDuration": "400",
+                "hideDuration": "1000",
+                "timeOut": "7000",
+                "extendedTimeOut": "1000",
+                "showEasing": "swing",
+                "hideEasing": "linear",
+                "showMethod": "fadeIn",
+                "hideMethod": "fadeOut"
+            }
+            
+        {% endif %}
+    </script>
+
+    
+    
+
+</body>
+
+</html>

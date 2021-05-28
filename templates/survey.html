@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+
+    <title> QA - {{ survey_title }} </title>
+    <meta name="keywords" content="">
+    <meta name="description" content="">
+
+    <link rel="shortcut icon" href="favicon.ico"> 
+    <link href="/static/css/bootstrap.min.css?v=3.3.6" rel="stylesheet">
+    <link href="/static/css/font-awesome.css?v=4.4.0" rel="stylesheet">
+    <link href="/static/css/plugins/iCheck/custom.css" rel="stylesheet">
+
+    <link href="/static/css/animate.css" rel="stylesheet">
+    <link href="/static/css/style.css?v=4.1.0" rel="stylesheet">
+
+</head>
+
+<body class="gray-bg">
+    <div class="wrapper wrapper-content  animated fadeInRight article">
+        <div class="row">
+            <div class="col-lg-6 col-lg-offset-3 col-md-8 col-md-offset-2">
+                <div class="ibox">
+                    <div class="ibox-content">
+                        <div class="pull-right">
+                            <!--button class="btn btn-white btn-xs" type="button">700BIKE</button>
+                            <button class="btn btn-white btn-xs" type="button">BeginOne</button>
+                            <button class="btn btn-white btn-xs" type="button">乐视超级自行车</button-->
+                        </div>
+                        <div class="text-center article-title">
+                            <h1>
+                                    {{ survey_title }}
+                                </h1>
+                        </div>
+                        <p>
+                            {{ survey_desp }}
+                        </p>
+                        <form method="POST" class="form-horizontal">
+                            {% csrf_token %}
+                            <div class="ibox-content forum-container">
+                                <ul class="list-group clear-list" style="margin-bottom:0;">
+                                    {% for question in questions %}
+                                        <li class="list-group-item fist-item">
+                                            <div class="row">
+                                                <div class="col-sm-1" style="margin-top: 1px;">
+                                                    <span class="label label-success m-md">{{ question.order }}</span>
+                                                </div>
+                                                <div class="col-sm-11">
+                                                    {% if question.topic_type == 'text' %}
+                                                        {{ question.topic }}
+                                                    {% elif question.topic_type == 'richtext' %}
+                                                        {{ question.topic|safe }}
+                                                    {% elif question.topic_type == 'markdown' %}
+                                                        {{ question.topic|safe }}
+                                                    {% endif %}
+                                                </div>
+                                            </div>
+                                            <div class="row">
+                                                <div class="col-sm-11">
+                                                    {% if question.answer_type == 'input' %}
+                                                        <input type="text" name="{{ question.id }}" class="form-control m-md m-t-sm" {% if not question.blank %} required="" {% endif %}>
+                                                    {% elif question.answer_type == 'textbox' %}
+                                                        <textarea class="form-control m-md m-t-sm" rows="6" name="{{ question.id }}" {% if not question.blank %} required="" {% endif %}></textarea>
+                                                    {% elif question.answer_type == 'checkbox' %}
+                                                        {% for answer in question.answers %}
+                                                            <div class="checkbox i-checks">
+                                                                <label>
+                                                                    <div class="icheckbox_square-green" style="position: relative;">
+                                                                        <input type="checkbox" value="{{ answer }}" name="{{ question.id }}" style="position: absolute; opacity: 0;">
+                                                                        <ins class="iCheck-helper" style="position: absolute; top: 0%; left: 0%; display: block; width: 100%; height: 100%; margin: 0px; padding: 0px; background: rgb(255, 255, 255); border: 0px; opacity: 0;">
+                                                                        </ins>
+                                                                    </div> {{ answer }}
+                                                                </label>
+                                                            </div>
+                                                        {% endfor %}
+                                                    {% elif question.answer_type == 'select' %}
+                                                        {% for answer in question.answers %}
+                                                            <div class="radio i-checks">
+                                                                <label>
+                                                                    <div class="iradio_square-green" style="position: relative;">
+                                                                        <input type="radio" value="{{ answer }}" name="{{ question.id }}" {% if not question.blank %} required="" {% endif %} style="position: absolute; opacity: 0;">
+                                                                        <ins class="iCheck-helper" style="position: absolute; top: 0%; left: 0%; display: block; width: 100%; height: 100%; margin: 0px; padding: 0px; background: rgb(255, 255, 255); border: 0px; opacity: 0;">
+                                                                        </ins>
+                                                                    </div> {{ answer }}
+                                                                </label>
+                                                            </div>
+                                                        {% endfor %}
+                                                    {% endif %}
+                                                </div>
+                                            </div>
+                                        </li>
+                                    {% endfor %}
+                                </ul>
+                            </div>
+                            <div class="ibox-content">
+                                <div class="text-center">
+                                    <button type="submit" {% if not survey_modifiable and submitted %}
+                                                class="btn btn-lg btn-disable" disabled="disabled"
+                                            {% else %}
+                                                class="btn btn-lg btn-primary" 
+                                            {% endif %}">
+                                        {% if survey_modifiable %}提交{% elif submitted %}您以提交过此问卷{% else %}提交{% endif %}
+                                    </button>
+                                </div>
+                            </div>
+                        </form>
+
+                        
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- 全局js -->
+    <script src="/static/js/jquery.min.js?v=2.1.4"></script>
+    <script src="/static/js/bootstrap.min.js?v=3.3.6"></script>
+    <script src="/static/js/plugins/iCheck/icheck.min.js"></script>
+
+
+
+    <!-- 自定义js -->
+    <script src="/static/js/content.js?v=1.0.0"></script>
+    <script>
+        $(document).ready(function () {
+            $('.i-checks').iCheck({
+                checkboxClass: 'icheckbox_square-green',
+                radioClass: 'iradio_square-green',
+            });
+        });
+    </script>
+
+    
+    
+
+</body>
+
+</html>

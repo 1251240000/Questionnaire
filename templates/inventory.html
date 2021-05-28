@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+
+    <title></title>
+    <meta name="keywords" content="">
+    <meta name="description" content="">
+
+    <link rel="shortcut icon" href="favicon.ico"> <link href="/static/css/bootstrap.min.css?v=3.3.6" rel="stylesheet">
+    <link href="/static/css/font-awesome.css?v=4.4.0" rel="stylesheet">
+    <link href="/static/css/plugins/iCheck/custom.css" rel="stylesheet">
+    <link href="/static/css/animate.css" rel="stylesheet">
+    <link href="/static/css/style.css?v=4.1.0" rel="stylesheet">
+    <link href="/static/css/plugins/toastr/toastr.min.css" rel="stylesheet">
+    <style type="text/css">
+
+    </style>
+</head>
+
+<body class="gray-bg">
+    <div class="wrapper wrapper-content animated fadeInRight">
+        <div class="row">
+            {% for survey in survey_list %}
+                <div class="col-lg-4 col-md-6 col-sm-6">
+                    <div class="ibox float-e-margins">
+                        <div class="ibox-title">
+                            <h5> {{ survey.title }} <!--small>{{ survey.description }}</small--></h5>
+                            <div class="ibox-tools">
+                                <form method="POST" id="{{ survey.id }}">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="type" value="">
+                                    <input type="hidden" name="survey" value="{{ survey.id }}" >
+                                    <a class="dropdown-toggle" onclick="copy_link('{{ survey.id }}');">
+                                        <i class="fa fa-share-alt"></i>
+                                    </a>
+                                    {% if 'setting' in fields %}
+                                        <!--a class="dropdown-toggle" data-toggle="dropdown" href="">
+                                            <i class="fa fa-wrench"></i>
+                                            <input type='hidden' value="">
+                                        </a>
+                                        <ul class="dropdown-menu dropdown-user">
+                                            <li>
+                                                <a href="" style="display: inline-flex;">是否激活
+                                                    <div class="switch" style="display: inline-block; padding: 2px 0px 0px 20px;">
+                                                        <div class="onoffswitch">
+                                                            <input type="checkbox" checked class="onoffswitch-checkbox" id="activate">
+                                                            <label class="onoffswitch-label" for="activate">
+                                                                <span class="onoffswitch-inner"></span>
+                                                                <span class="onoffswitch-switch"></span>
+                                                            </label>
+                                                        </div>
+                                                    </div>
+                                                </a>
+                                            </li>
+                                            <li>
+                                                <a href="" style="display: inline-flex;">重复提交
+                                                    <div class="switch" style="display: inline-block; padding: 2px 0px 0px 20px;">
+                                                        <div class="onoffswitch">
+                                                            <input type="checkbox" checked class="onoffswitch-checkbox" id="modifiable">
+                                                            <label class="onoffswitch-label" for="modifiable">
+                                                                <span class="onoffswitch-inner"></span>
+                                                                <span class="onoffswitch-switch"></span>
+                                                            </label>
+                                                        </div>
+                                                    </div>
+                                                </a>
+                                            </li>
+                                        </ul-->
+                                    {% endif %}
+                                    {% if 'delete' in fields %}
+                                        <a class="close-link" onclick="delete_survey('{{ survey.id }}');">
+                                            <i class="fa fa-trash-o"></i>
+                                        </a>
+                                    {% endif %}
+                                </form>
+                            </div>
+                        </div>
+                        <div class="ibox-content">
+                            {% if 'activate' in fields %}
+                                <div class="row">
+                                    <div class="col-sm-12">
+                                        <dl class="dl-horizontal">
+                                            <dt>状态：</dt>
+                                            {% if survey.activate %}
+                                                <dd><span class="label label-primary">进行中</span>
+                                                </dd>
+                                            {% else %}
+                                                <dd><span class="label label-white">已结束</span>
+                                                </dd>
+                                            {% endif %}
+                                        </dl>
+                                    </div>
+                                </div>
+                            {% endif %}
+                            <div class="row">
+                                <div class="col-sm-12">
+                                    <dl class="dl-horizontal">
+                                        {% if 'title' in fields %}
+                                            <dt>标题：</dt>
+                                            <dd>{{ survey.title }}</dd>
+                                        {% endif %}
+                                        {% if 'founder' in fields %}
+                                            <dt>发起人：</dt>
+                                            <dd>{{ survey.founder__user__username }}</dd>
+                                        {% endif %}
+                                        {% if 'creation_time' in fields %}
+                                            <dt>创建时间：</dt>
+                                            <dd>{{ survey.creation_time|date:"Y-m-d H:i:s" }}</dd>
+                                        {% endif %}
+                                        {% if 'questions_count' in fields %}
+                                            <dt>题目数量：</dt>
+                                            <dd>{{ survey.questions_count }}</dd>
+                                        {% endif %}
+                                        {% if 'surveyuser_count' in fields %}
+                                            <dt>参与用户量：</dt>
+                                            <dd>{{ survey.surveyuser_count }}</dd>
+                                        {% endif %}
+                                        </dl>
+                                    </div>
+                                </div>
+                            {% if 'public' in fields %}
+                                <div class="row">
+                                    <div class="col-sm-12">
+                                        <dl class="dl-horizontal">
+                                            <dt>允许匿名：</dt>
+                                            {% if survey.public %}
+                                                <dd><span class="label label-primary">允许</span>
+                                                </dd>
+                                                <dt>匿名用户量：</dt>
+                                                <dd>{{ survey.anonymous_count }}</dd>
+                                            {% else %}
+                                                <dd><span class="label label-white">禁止</span>
+                                                </dd>
+                                            {% endif %}
+                                        </dl>
+                                    </div>
+                                </div>
+                            {% endif %}
+                            {% if 'modifialbe' in fields %}
+                                <div class="row">
+                                    <div class="col-sm-12">
+                                        <dl class="dl-horizontal">
+                                            <dt>重复提交：</dt>
+                                            {% if survey.modifiable %}
+                                                <dd><span class="label label-primary">允许</span>
+                                                </dd>
+                                            {% else %}
+                                                <dd><span class="label label-danger">禁止</span>
+                                                </dd>
+                                            {% endif %}
+                                        </dl>
+                                    </div>
+                                </div>
+                            {% endif %}
+                            {% if 'options' in fields %}
+                                <div class="row">
+                                    <div class="col-sm-12">
+                                        <dl class="dl-horizontal">
+                                            <dt>操作：</dt>
+                                            <dd>
+                                            {% if 'edit' in fields %}
+                                                <a class="btn btn-primary" href="/edit?survey={{ survey.id }}&content=survey">编辑问卷</a>
+                                                <!--a data-toggle="modal" class="btn btn-primary" data-remote="/edit?survey={{ survey.id }}&content=survey" data-target="#edit-survey">编辑问卷</a>
+                                                <a data-toggle="modal" class="btn btn-primary" data-remote="/edit?survey={{ survey.id }}&content=question" data-target="#edit-question">编辑题目</a-->
+                                            {% endif %}
+                                            <a class="btn btn-primary" href="/q/{{ survey.id }}/" target="_blank">进入问卷</a>
+                                            </dd>
+                                        </dl>
+                                    </div>
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+            {% if page == 'home' %}
+                <div class="col-lg-4 col-md-6 col-sm-6">
+                    <div class="ibox float-e-margins">
+                        <div class="ibox-title">
+                            <h5> 新增问卷 </h5>
+                        </div>
+                        <div class="ibox-content">
+                            <div style="text-align:center">
+                                <button class="btn btn-default dim btn-large-dim" type="button" onclick="window.location.href='/edit?content=survey'">
+                                    <i class="fa fa-plus"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- 全局js -->
+    <script src="/static/js/jquery.min.js?v=2.1.4"></script>
+    <script src="/static/js/bootstrap.min.js?v=3.3.6"></script>
+
+    <!-- 自定义js -->
+    <script src="/static/js/content.js?v=1.0.0"></script>
+
+    <!-- iCheck -->
+    <script src="/static/js/plugins/iCheck/icheck.min.js"></script>
+
+    <!-- Toastr script -->
+    <script src="/static/js/plugins/toastr/toastr.min.js"></script>
+
+
+    <script>
+        $(document).ready(function () {
+            $('.i-checks').iCheck({
+                checkboxClass: 'icheckbox_square-green',
+                radioClass: 'iradio_square-green',
+            });
+        });
+        function check_iframe(sur, cont) {
+            $("#survey-iframe").attr('src', '/edit?survey=' + sur + '&content=' + cont);
+        };
+        function copy_text(text) {
+            var textarea = document.createElement("input");//创建input对象
+            var currentFocus = document.activeElement;//当前获得焦点的元素
+            document.body.appendChild(textarea);//添加元素
+            textarea.value = text;
+            textarea.focus();
+            if(textarea.setSelectionRange)
+                textarea.setSelectionRange(0, textarea.value.length);//获取光标起始位置到结束位置
+            else
+                textarea.select();
+            try {
+                var flag = document.execCommand("copy");//执行复制
+            } catch(eo) {
+                var flag = false;
+            }
+            document.body.removeChild(textarea);//删除元素
+            return flag;
+        }
+        function copy_link(survey) {
+            var link = window.location.origin + '/q/' + survey + '/';
+            var res = copy_text(link);
+            if (res) {
+                toastr.success("链接已复制！");
+            } else {
+
+            }
+        }
+        function delete_survey(s) {
+            $('#' + s + ' input[name="type"]').val('delete');
+            if (confirm("确认删除？")) {
+                $('#' + s).submit();
+            }
+        }
+        
+        toastr.options = {
+            "closeButton": true,
+            "debug": false,
+            "progressBar": true,
+            "positionClass": "toast-top-right",
+            "onclick": null,
+            "showDuration": "400",
+            "hideDuration": "1000",
+            "timeOut": "7000",
+            "extendedTimeOut": "1000",
+            "showEasing": "swing",
+            "hideEasing": "linear",
+            "showMethod": "fadeIn",
+            "hideMethod": "fadeOut"
+        }
+    </script>
+</body>
+
+</html>

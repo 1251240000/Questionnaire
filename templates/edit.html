@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+
+    <title></title>
+    <meta name="keywords" content="">
+    <meta name="description" content="">
+
+    <link rel="shortcut icon" href="favicon.ico"> <link href="/static/css/bootstrap.min.css?v=3.3.6" rel="stylesheet">
+    <link href="/static/css/font-awesome.css?v=4.4.0" rel="stylesheet">
+    <link href="/static/js/plugins/fancybox/jquery.fancybox.css" rel="stylesheet">
+    
+    <link href="/static/css/plugins/footable/footable.core.css" rel="stylesheet">
+    <link href="/static/css/animate.css" rel="stylesheet">
+
+    <link href="/static/css/bootstrap-switch.css" rel="stylesheet">
+    <link href="/static/css/plugins/summernote/summernote.css" rel="stylesheet">
+    <link href="/static/css/plugins/summernote/summernote-bs3.css" rel="stylesheet">
+    <link href="/static/css/style.css?v=4.1.0" rel="stylesheet">
+    <link href="/static/css/plugins/markdown/bootstrap-markdown.min.css" rel="stylesheet">
+    <link href="/static/css/plugins/toastr/toastr.min.css" rel="stylesheet">
+    <style type="text/css">
+        table { table-layout: fixed;
+        border-collapse:collapse;
+        width: 100%;
+        }
+        td{
+        white-space: nowrap;/*控制单行显示*/
+        overflow: hidden;/*超出隐藏*/
+        text-overflow: ellipsis;/*隐藏的字符用省略号表示*/
+        }
+    </style>
+</head>
+
+<body class="gray-bg">
+    <div class="wrapper wrapper-content animated fadeInRight" style="-webkit-animation-fill-mode: backwards; animation-fill-mode: backwards;">
+        {% if content == 'survey' %}
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="ibox float-e-margins">
+                        <div class="ibox-title">
+                            <h5>问卷编辑器</h5>
+                        </div>
+                        <div class="ibox-content">
+                            <form method="post" class="form-horizontal" role="form" action="/edit">
+                                {% csrf_token %}
+                                <input type="hidden" name="type" value="survey">
+                                <input type="hidden" name="survey" value="{{ survey|default:"" }}">
+                                <div class="form-group">
+                                    <label class="col-sm-2 control-label">标题</label>
+
+                                    <div class="col-sm-10">
+                                        <input type="text" class="form-control" name="title" value="{{ title }}" required="">
+                                    </div>
+                                </div>
+                                <div class="hr-line-dashed"></div>
+                                <div class="form-group">
+                                    <label class="col-sm-2 control-label">描述</label>
+                                    <div class="col-sm-10">
+                                        <textarea class="form-control" rows="5" name="description" value="{{ description }}" required="" id="description"></textarea>
+                                        <span class="help-block m-b-none">问卷的描述信息，可填写该问卷的研究内容、方向及目标，支持多行显示。</span>
+                                    </div>
+                                </div>
+                                <div class="hr-line-dashed"></div>
+                                <div class="form-group">
+                                    <label class="col-sm-2 control-label">是否激活</label>
+                                    <div class="col-sm-10">
+                                        <input type="checkbox" {% if activate %}checked{% endif %} class="onoffswitch-checkbox" name="activate">
+                                        <!--div class="switch">
+                                            <div class="onoffswitch" style="margin-top: 5px;">
+                                                <input type="checkbox" {% if activate %}checked{% endif %} class="onoffswitch-checkbox" name="activate">
+                                                <label class="onoffswitch-label" for="activate">
+                                                    <span class="onoffswitch-inner"></span>
+                                                    <span class="onoffswitch-switch"></span>
+                                                </label>
+                                            </div>
+                                        </div-->
+                                    </div>
+                                </div>
+                                <div class="hr-line-dashed"></div>
+                                <div class="form-group">
+                                    <label class="col-sm-2 control-label">是否公开</label>
+                                    <div class="col-sm-10">
+                                        <input type="checkbox" {% if public %}checked{% endif %} class="onoffswitch-checkbox" name="public">
+                                        <!--div class="switch">
+                                            <div class="onoffswitch" style="margin-top: 5px;">
+                                                <input type="checkbox" {% if public %}checked{% endif %} class="onoffswitch-checkbox" name="public">
+                                                <label class="onoffswitch-label" for="public">
+                                                    <span class="onoffswitch-inner"></span>
+                                                    <span class="onoffswitch-switch"></span>
+                                                </label>
+                                            </div>
+                                        </div-->
+                                    </div>
+                                </div>
+                                <div class="hr-line-dashed"></div>
+                                <div class="form-group">
+                                    <label class="col-sm-2 control-label">允许修改</label>
+                                    <div class="col-sm-10">
+                                        <input type="checkbox" {% if modifiable %}checked{% endif %} class="onoffswitch-checkbox" name="modifiable">
+                                        <!--div class="switch">
+                                            <div class="onoffswitch" style="margin-top: 5px;">
+                                                <input type="checkbox" {% if modifiable %}checked{% endif %} class="onoffswitch-checkbox" name="modifiable">
+                                                <label class="onoffswitch-label" for="modifiable">
+                                                    <span class="onoffswitch-inner"></span>
+                                                    <span class="onoffswitch-switch"></span>
+                                                </label>
+                                            </div>
+                                        </div-->
+                                    </div>
+                                </div>
+                                <div class="hr-line-dashed"></div>
+                                <div class="form-group">
+                                    <div class="col-sm-4 col-sm-offset-2">
+                                        <button class="btn btn-primary" type="submit">保存内容</button>
+                                        <a class="btn btn-primary" href="/edit?survey={{ survey }}&content=question">编辑题目</a>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% elif content == 'question' %}
+            <form method="post" class="form-horizontal" role="form" id="delete_question_form" action="/edit" onsubmit=''>
+                {% csrf_token %}
+                <input type="hidden" name="type" value="delete_question">
+                <input type="hidden" name="survey" value="{{ survey|default:"" }}">
+                <input type="hidden" name="question_id" id="delete_question_id" value="">
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="ibox float-e-margins">
+                            <div class="ibox-title">
+                                <h5>{{ title }}</h5>
+                            </div>
+                            <div class="ibox-content">
+                                <div class="row">
+                                    <div class="col-sm-3">
+                                        <button type="button" class="btn btn-w-m btn-success" data-toggle="modal" data-target="#question" onclick="new_question()">新增题目</button>
+                                    </div>
+                                    <div class="col-sm-3 col-sm-offset-6">
+                                        <input type="text" class="form-control input-sm m-b-xs" id="filter" placeholder="搜索题目...">
+                                    </div>
+                                </div>
+                                <table class="footable table table-stripped" data-page-size="10" data-filter=#filter>
+                                    <thead>
+                                        <tr>
+                                            <th>序号</th>
+                                            <th>题目类型</th>
+                                            <th>题目</th>
+                                            <th>答案类型</th>
+                                            <th>答案</th>
+                                            <th>允许为空</th>
+                                            <th>操作</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for question in questions %}
+                                            <tr class="gradeX">
+                                                <td>{{ question.order }}</td>
+                                                <td> 
+                                                    {% if question.topic_type == 'text' %}
+                                                        普通
+                                                    {% elif question.topic_type == 'richtext' %}
+                                                        富文本
+                                                    {% else %}
+                                                        Markdown
+                                                    {% endif %}
+                                                </td>
+                                                <td>{{ question.topic }}</td>
+                                                <td>
+                                                    {% if question.answer_type == 'select' %}
+                                                        选择题
+                                                    {% elif question.answer_type == 'checkbox' %}
+                                                        多选题
+                                                    {% elif question.answer_type == 'input' %}
+                                                        填空题
+                                                    {% else %}
+                                                        简答题
+                                                    {% endif %}
+                                                </td>
+                                                <td>
+                                                    {% if question.answer_type == "input" or question.answer_type == "textbox" %}
+                                                     - 
+                                                    {% else %}
+                                                        {% for ans in question.answers %}
+                                                            {% if ans %}
+                                                                {% if not forloop.first %}
+                                                                    ,
+                                                                {% endif %}
+                                                                {{ forloop.counter }}.{{ ans }}
+                                                            {% endif %}
+                                                        {% endfor %}
+                                                    {% endif%}
+                                                </td>
+                                                <td>
+                                                    {% if question.blank %}
+                                                        <span class="label label-primary">允许</span>
+                                                    {% else %}
+                                                        <span class="label label-danger">禁止</span>
+                                                    {% endif %}
+                                                </td>
+                                                <td>
+                                                    <a href="#" data-toggle="modal" data-target="#question" onclick="edit({{ forloop.counter0 }})">编辑</a>
+                                                    &nbsp; &nbsp;
+                                                    <a href="#" onclick="delete_question('{{ question.id }}')">删除</a>
+                                                </td>
+                                            </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                    <tfoot>
+                                        <tr>
+                                            <td colspan="7">
+                                                <ul class="pagination pull-right"></ul>
+                                            </td>
+                                        </tr>
+                                    </tfoot>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </form>
+            <div class="row p-m">
+            </div>
+            <div class="modal inmodal fade" id="question" tabindex="-1" role="dialog" aria-hidden="true">
+                <div class="modal-dialog modal-lg" style="width:900px;">
+                    <div class="modal-content">
+                        <form method="post" class="form-horizontal" role="form" action="/edit" onsubmit="check_topic()">
+                            <div class="modal-header">
+                                <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                                <h4 class="modal-title">问题 </h4>
+                            </div>
+                            <div class="modal-body">
+                                {% csrf_token %}
+                                <input type="hidden" name="type" value="question">
+                                <input type="hidden" name="survey" value="{{ survey|default:"" }}">
+                                <input type="hidden" name="question_id" id="question_id" value="">
+                                <div class="form-group">
+                                    <label class="col-sm-2 control-label">题目类型</label>
+                                    <div class="col-sm-10">
+                                        <select class="form-control" id="topic_type" name="topic_type">
+                                            <option value="text">文本</option>
+                                            <option value="richtext">富文本</option>
+                                            <option value="markdown">Markdown</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="form-group" id="topic_text" style="display:none">
+                                    <label class="col-sm-2 control-label">标题</label>
+                                    <div class="col-sm-10">
+                                        <input type="text" class="form-control" name="topic" value="">
+                                    </div>
+                                </div>
+                                <div class="form-group" id="topic_richtext" style="display:none">
+                                    <label class="col-sm-2 control-label">标题</label>
+                                    <div class="col-sm-10">
+                                        <div id="summernote">
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="form-group" id="topic_markdown" style="display:none">
+                                    <label class="col-sm-2 control-label">标题</label>
+                                    <div class="col-sm-10">
+                                        <textarea data-provide="markdown" rows="13"></textarea>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="col-sm-2 control-label">答案类型</label>
+                                    <div class="col-sm-10">
+                                        <select class="form-control" id="answer_type" name="answer_type">
+                                            <option value="select">选择题</option>
+                                            <option value="checkbox">多选题</option>
+                                            <option value="input">填空题</option>
+                                            <option value="textbox">简答题</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div id="answer_dom">
+                                <div class="form-group answer_option" style="display: none">
+                                    <div class="col-sm-2 control-label">
+                                    </div>
+                                    <div class="col-sm-10">
+                                        <button class="btn btn-default btn-circle" type="button" onclick="add_answer(-1)">
+                                            <i class="fa fa-minus text-danger"></i>
+                                            <span class="bold"></span>
+                                        </button>
+                                        <button class="btn btn-default btn-circle" type="button" onclick="add_answer(1)">
+                                            <i class="fa fa-plus"></i>
+                                            <span class="bold"></span>
+                                        </button>
+                                    </div>
+                                </div>
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-white" data-dismiss="modal">关闭</button>
+                                <button type="submit" class="btn btn-primary">保存</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+    </div>
+
+
+    <!-- 全局js -->
+    <script src="/static/js/jquery.min.js?v=2.1.4"></script>
+    <script src="/static/js/bootstrap.min.js?v=3.3.6"></script>
+    <script src="/static/js/plugins/footable/footable.all.min.js"></script>
+
+    <script src="/static/js/bootstrap-switch.js"></script>
+
+    <!-- Peity -->
+    <script src="/static/js/plugins/peity/jquery.peity.min.js"></script>
+
+    <!-- 自定义js -->
+    <script src="/static/js/content.js?v=1.0.0"></script>
+
+    <!-- Fancy box -->
+    <script src="/static/js/plugins/fancybox/jquery.fancybox.js"></script>
+    
+    <!-- Toastr script -->
+    <script src="/static/js/plugins/toastr/toastr.min.js"></script>
+
+    <!-- SUMMERNOTE -->
+    <script src="/static/js/plugins/summernote/summernote.min.js"></script>
+    <script src="/static/js/plugins/summernote/summernote-zh-CN.js"></script>
+
+    <!-- simditor -->
+    <script src="/static/js/plugins/markdown/markdown.js"></script>
+    <script src="/static/js/plugins/markdown/to-markdown.js"></script>
+    <script src="/static/js/plugins/markdown/bootstrap-markdown.js"></script>
+    <script src="/static/js/plugins/markdown/bootstrap-markdown.zh.js"></script>
+
+
+    <script>
+        {% if content == 'survey' %}
+            $(document).ready(function () {
+                $('.fancybox').fancybox({
+                    openEffect: 'none',
+                    closeEffect: 'none',
+                });
+                $('#description').text("{{ description }}");
+                $("[name='activate']").bootstrapSwitch({size: 'mini'});
+                $("[name='public']").bootstrapSwitch({size: 'mini'});
+                $("[name='modifiable']").bootstrapSwitch({size: 'mini'});
+            });
+        {% elif content == 'question' %}
+            $('.footable').footable({
+            });
+            toastr.options = {
+                "closeButton": true,
+                "debug": false,
+                "progressBar": true,
+                "positionClass": "toast-top-right",
+                "onclick": null,
+                "showDuration": "400",
+                "hideDuration": "1000",
+                "timeOut": "7000",
+                "extendedTimeOut": "1000",
+                "showEasing": "swing",
+                "hideEasing": "linear",
+                "showMethod": "fadeIn",
+                "hideMethod": "fadeOut"
+            }
+            var True = true, False = false;
+            var questions = {{ questions|safe }};
+            var answer_length = 0;
+            var answers = [];
+            var answer_dom = `<div class="form-group answer">
+                                    <label class="col-sm-2 control-label">答案 {order}</label>
+                                    <div class="col-sm-10">
+                                        <input type="text" class="form-control" name="answers" value="">
+                                    </div>
+                                </div>`;
+            $('#summernote').summernote({
+                lang: 'zh-CN',
+                height: 245,
+            });
+            function delete_question(question_id) {
+                if (confirm("确认删除？")) {
+                    $('#delete_question_id').val(question_id);
+                    $('#delete_question_form').submit();
+                }
+            };
+            function check_topic() {
+                var type = $('#topic_type option:selected').val();
+                if (type == 'richtext') {
+                    var text = $('#summernote').code();
+                    $('#topic_text input').val(text);
+                } else if (type == 'markdown') {
+                    var text = $('#topic_markdown textarea').val();
+                    $('#topic_text input').val(text);
+                }
+                return true;
+            }
+            function change_topic_type() {
+                $('#topic_text').css('display', 'none');
+                $('#topic_richtext').css('display', 'none');
+                $('#topic_markdown').css('display', 'none');
+                var type = $('#topic_type option:selected').val();
+                $('#topic_' + type).css('display', '');
+            }
+            function add_answer(quantity) {
+                if (answer_length + quantity > 10) {
+                    toastr.warning("超出最大答案数量限制！");
+                }  else if (answer_length + quantity < 2) {
+                    toastr.warning("超出最小答案数量限制！");
+                } else {
+                    answer_length += quantity;
+                    change_answer_type();
+                }
+            }
+            function change_answer_type() {
+                $('.answer').css('display', 'none');
+                $('.answer_option').css('display', 'none');
+                $('.answer input').attr('disabled', 'disabled')
+                var type = $('#answer_type option:selected').val();
+                if (type == 'select' || type == 'checkbox') {
+                    $('.answer_option').css('display', '');
+                    var cur = $('.answer').length;
+                    for (var i = cur + 1; i <= answer_length; i ++) {
+                        $('#answer_dom').before(answer_dom.replace(/{order}/g, i));
+                    }
+                    for (var i = 0; i < answer_length; i ++) {
+                        $('.answer:eq(' + i + ') input').val(answers[i]);
+                        $('.answer:eq(' + i + ')').css('display', '');
+                        $('.answer:eq(' + i + ') input').removeAttr('disabled');
+                    }
+                }
+            }
+            $('#topic_type').change(function(){ change_topic_type(); });
+            $('#answer_type').change(function(){ change_answer_type(); });
+
+            function new_question() {
+                $('#question_id').val('');
+                $('.modal-title').text("新增题目");
+                $('#topic_type').val('text');
+                change_topic_type();
+                
+                $('#topic_text input').val('');
+                $('#topic_markdown textarea').val('');
+                $('#summernote').code('');
+
+                answers = ['', ''];
+                answer_length = 2;
+                $('#answer_type').val('input');
+                change_answer_type();
+            }
+
+            function edit(index) {
+                var question = questions[index]; 
+                $('#question_id').val(question.id);
+                $('.modal-title').text("问题 " + question.order);
+                $('#topic_type').val(question.topic_type);
+                change_topic_type();
+
+                $('#topic_text input').val('');
+                $('#topic_markdown textarea').val('');
+                $('#summernote').code('');
+
+                if (question.topic_type == 'text') {
+                    $('#topic_text input').val(question.topic);
+                } else if (question.topic_type == 'markdown'){
+                    $('#topic_markdown textarea').val(question.topic);
+                }
+                else {
+                    $('#summernote').code(question.topic);
+                }
+                $('#answer_type').val(question.answer_type);
+                if (question.answer_type == 'select' || question.answer_type == 'checkbox') {
+                    answers = question.answers;
+                    answer_length = question.answers.length;
+                } else {
+                    answers = ['', ''];
+                    answer_length = 2;
+                }
+                change_answer_type();
+            }
+        {% endif %}
+    </script>
+
+    
+    
+
+</body>
+
+</html>
